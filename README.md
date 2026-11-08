@@ -41,3 +41,7 @@ _TBD_
 ## With more time
 
 _TBD_
+
+## Credits
+
+- Animal illustrations: [Animal Pack Remastered](https://kenney.nl/assets/animal-pack-remastered) by Kenney ([CC0](https://creativecommons.org/publicdomain/zero/1.0/)). The original sheet was split into one SVG per animal in `public/images/animals/`.
