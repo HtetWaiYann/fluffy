@@ -1,20 +1,6 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
-  /* config options here */
-  experimental: {
-    agentFeedback: true,
-  },
-  cacheComponents: true,
-  partialPrefetching: true,
-  turbopack: {
-    rules: {
-      "*.css": {
-        loaders: ["@tailwindcss/turbopack"],
-        as: "*.css",
-      },
-    },
-  },
-};
+// Intentionally empty: Sass, src/ and next/image work with defaults. See docs/DECISIONS.md D-003.
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
