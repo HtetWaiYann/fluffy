@@ -13,6 +13,7 @@
   }
 
   50% {
-    transform: translateY(-10%);
+    // Default: 10% of the figure's own height. Set --jump-height to override.
+    transform: translateY(var(--jump-height, -10%));
   }
 }

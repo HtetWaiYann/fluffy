@@ -1,0 +1,121 @@
+@use "../../styles/jump" as *;
+
+.hero {
+  position: relative;
+  // svh: the small viewport height, so the hero doesn't jump when mobile browser bars hide.
+  height: 100svh;
+  overflow: hidden;
+
+  // sizing for the avatars for both the crowd and the center peep
+  --cell: min(70svh, 140vw);
+  --cell-w: calc(var(--cell) * 240 / 324);
+
+  // to move to down (because of jumping animation, it looks to close to the top)
+  --drop: calc(var(--cell) * 0.1);
+}
+
+.wordmark {
+  position: absolute;
+  top: var(--space-gutter);
+  left: var(--space-gutter);
+  z-index: var(--z-hero-ui);
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--text-title);
+  font-weight: 600;
+  line-height: 1;
+  padding: var(--space-xs) var(--space-s);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+}
+
+.crowd {
+  position: absolute;
+  // reaches below the hero, so the front row still hides the below body part of peep (avatar) mid-jump.
+  inset: 0 0 calc(var(--cell) * -0.25 - var(--drop));
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+
+  // each row starts 55% of a character's height into the one above.
+  & + & {
+    margin-top: calc(var(--cell) * -0.55);
+  }
+
+  // every other row shifts by half a step, like bricks. Rows are centred, so
+  // padding of one full step (0.35 of a width) moves the row by half a step.
+  &:nth-child(even) {
+    padding-left: calc(var(--cell-w) * 0.15);
+  }
+
+  // we need the last row stands in front of the centre figure so that their heads overlap her
+  // shoulders, so she looks like she's inside the crowd.
+  &:last-child {
+    position: relative;
+    z-index: var(--z-crowd-front);
+  }
+}
+
+.character {
+  flex: 0 0 var(--cell-w);
+  width: var(--cell-w);
+  height: var(--cell);
+  @include jump;
+
+  // Characters overlap by 65% sideways, so each one adds only 0.35 of a width
+  // (the artwork also has empty space at its sides).
+  & + & {
+    margin-left: calc(var(--cell-w) * -0.6);
+  }
+
+  // Only as many per row as the screen needs, so hidden ones don't animate.
+  // Figures are sized by screen height, so the count depends on the screen's
+  // shape (width / height), not its width. Each band shows enough for its widest
+  // screen (+1 spare). nth-child(-n + N) re-shows the first N with equal specificity.
+  &:nth-child(n + 7) {
+    display: none;
+  }
+
+  @media (min-aspect-ratio: 3/4) {
+    &:nth-child(-n + 8) {
+      display: block;
+    }
+  }
+
+  @media (min-aspect-ratio: 1/1) {
+    &:nth-child(-n + 10) {
+      display: block;
+    }
+  }
+
+  @media (min-aspect-ratio: 4/3) {
+    &:nth-child(-n + 14) {
+      display: block;
+    }
+  }
+
+  // 21:9 ultra-wide needs 19.
+  @media (min-aspect-ratio: 2/1) {
+    &:nth-child(n) {
+      display: block;
+    }
+  }
+}
+
+.center {
+  position: absolute;
+  left: 50%;
+  // we need to match the head to align with the crowd
+  bottom: calc(var(--cell) * -1.27 - var(--drop));
+  z-index: var(--z-hero-center);
+  width: auto;
+  height: calc(var(--cell) * 2.4);
+  translate: -50% 0;
+  @include jump;
+  // the image is a standing one so it is taller. so, we need to hop with its own height
+  --jump-height: calc(var(--cell) * -0.1);
+}

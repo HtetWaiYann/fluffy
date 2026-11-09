@@ -4,12 +4,21 @@
   --color-bg: #ffffff;
   --color-ink: #263238;
 
+  --space-xs: 0.5rem;
   --space-s: 1rem;
+  // Page edge padding: 16px on phones up to 40px on wide screens.
+  --space-gutter: clamp(1rem, 0.5rem + 2.5vw, 2.5rem);
 
   // Fluid sizes: rem + vw so text still scales with browser zoom.
   --text-label: 0.875rem;
+  --text-title: clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem);
   --text-display: clamp(3rem, 2rem + 5vw, 6rem);
 
+  --radius-pill: 999px;
+
+  --z-hero-center: 1;
+  --z-crowd-front: 2;
+  --z-hero-ui: 3;
   --z-loader: 100;
 }
 
@@ -30,4 +39,14 @@ html {
   color: var(--color-ink);
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+// For text only screen readers should get (e.g. the hero's h1).
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
