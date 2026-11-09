@@ -13,6 +13,7 @@ import {
   HERO_LIE_DROP,
 } from "@/lib/motion";
 import { useLenis } from "@/components/providers/SmoothScroll";
+import { useHeroEntrance } from "./useHeroEntrance";
 
 type HeroScrollProps = { className: string; children: ReactNode };
 
@@ -24,6 +25,7 @@ type HeroScrollProps = { className: string; children: ReactNode };
 export function HeroScroll({ className, children }: HeroScrollProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const lenisRef = useLenis();
+  useHeroEntrance(sectionRef);
 
   useGSAP(
     () => {

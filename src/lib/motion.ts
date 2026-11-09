@@ -35,3 +35,33 @@ export const HERO_TITLE_LIFT = 0.5;
 
 /** How far below the middle she lies, as part of the screen height (0.05 = 5%). */
 export const HERO_LIE_DROP = 0.05;
+
+/** Loader fade out. 0.6s: soft, but the hero's entrance starts under it, so no wait. */
+export const LOADER_EXIT_DURATION = 0.6;
+
+/** Loader fade out for reduced motion: quick, no entrance after it. */
+export const LOADER_EXIT_DURATION_REDUCED = 0.3;
+
+/** How long each crowd row takes to rise in. */
+export const HERO_ENTRANCE_DURATION = 1;
+
+/** Gap between rows rising in. 0.06s x 8 rows: reads as one wave, not 8 moves. */
+export const HERO_ROW_STAGGER = 0.06;
+
+/** Very fast start, long soft stop: the crowd rushes in, then settles. */
+export const EASE_OUT_STRONG = "power3.out";
+
+/** When the nurse pops up: after the front rows, so she lands in a filled crowd. */
+export const HERO_POP_AT = 0.35;
+
+/** How long the nurse's pop takes. */
+export const HERO_POP_DURATION = 0.8;
+
+/** Goes a little past the end and bounces back: a playful "pop". */
+export const EASE_POP = "back.out(1.6)";
+
+/** When the wordmark and buttons come in: last, once the scene is mostly there. */
+export const HERO_UI_AT = 0.6;
+
+/** How long the wordmark and buttons take to fade and rise in. */
+export const HERO_UI_DURATION = 0.6;

@@ -7,7 +7,7 @@ const CTA_BLOB =
 
 export function HeroCtas() {
   return (
-    <div className={styles.ctas}>
+    <div className={styles.ctas} data-hero-ctas>
       <div className={styles.socials}>
         {SOCIAL_ICONS.map(({ label, name, path, scale }) => (
           // type="button" + aria-label: the brief says these don't go anywhere,
