@@ -1,8 +1,11 @@
-/**
- * The landing page. Stays a server component; the Loader, Hero and
- * Collection sections are added here as separate client islands later.
- * @returns The page's main landmark.
- */
+import { Loader } from "@/components/Loader/Loader";
+
+/** The landing page. Server component; sections are client components inside it. */
 export default function Home() {
-  return <main />;
+  return (
+    <>
+      <Loader />
+      <main />
+    </>
+  );
 }

@@ -1,13 +1,12 @@
-/**
- * Root layout: the single HTML shell for the page.
- * Fonts, metadata and providers are added in later steps.
- * @param props.children - The page content.
- * @returns The `<html>` and `<body>` shell.
- */
+import { LoaderProvider } from "@/components/providers/LoaderProvider";
+
+/** Root HTML shell. Server component; only LoaderProvider runs in the browser. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <LoaderProvider>{children}</LoaderProvider>
+      </body>
     </html>
   );
 }
