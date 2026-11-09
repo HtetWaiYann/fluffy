@@ -25,6 +25,9 @@ export const HERO_LIE_ROTATION = -90;
 /** How wide she is when lying down, as part of the screen width (0.35 = 35%). */
 export const HERO_LIE_FIT = 0.35;
 
+/** Same on portrait screens: they're narrow, so 35% made her tiny (131px on a phone). */
+export const HERO_LIE_FIT_PORTRAIT = 0.6;
+
 /** How wide the title is in scene 2, as part of the screen width (0.8 = 80%). */
 export const HERO_TITLE_FIT = 0.8;
 
@@ -63,3 +66,6 @@ export const HERO_UI_AT = 0.6;
 
 /** How long the wordmark and buttons take to fade and rise in. */
 export const HERO_UI_DURATION = 0.6;
+
+/** Reduced motion: each half of the scene fade (out, then in). Short, nothing moves. */
+export const HERO_SCENE_FADE_DURATION = 0.25;

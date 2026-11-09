@@ -2,16 +2,9 @@
 
 import { useRef, type ReactNode } from "react";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import {
-  EASE_IN_OUT,
-  HERO_LIE_FIT,
-  HERO_LIE_ROTATION,
-  HERO_SCENE_DURATION,
-  HERO_TITLE_FIT,
-  HERO_TITLE_LIFT,
-  HERO_LIE_DROP,
-} from "@/lib/motion";
+import { HERO_SCENE_DURATION } from "@/lib/motion";
 import { useLenis } from "@/components/providers/SmoothScroll";
+import { buildHeroScene } from "./buildHeroScene";
 import { useHeroEntrance } from "./useHeroEntrance";
 
 type HeroScrollProps = {
@@ -44,8 +37,13 @@ export function HeroScroll({
       window.scrollTo(0, 0);
 
       const mm = gsap.matchMedia();
-      // reduced motion: no scene, hero stays still.
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
+      // both queries listed: GSAP only runs this when one of them matches.
+      // rebuilds if the reduced motion setting flips.
+      const motionQueries = {
+        isReduced: "(prefers-reduced-motion: reduce)",
+        isFull: "(prefers-reduced-motion: no-preference)",
+      };
+      mm.add(motionQueries, (context) => {
         const section = sectionRef.current;
         const center =
           section?.querySelector<HTMLElement>("[data-hero-center]");
@@ -56,65 +54,17 @@ export function HeroScroll({
           section?.querySelector<HTMLElement>("[data-hero-ground]");
         if (!section || !center || !body || !crowd || !title || !ground) return;
 
-        // grow the title to HERO_TITLE_FIT of the screen width.
-        const titleScale = () =>
-          (section.offsetWidth * HERO_TITLE_FIT) / title.offsetWidth;
-
         // CSS uses this to pause whatever is hidden: "1", "2" or "change".
         const setScene = (value: string) => (section.dataset.scene = value);
 
-        // scene 1 -> 2, all at once. plays by time, so it never stops halfway.
-        const scene = gsap
-          .timeline({
-            paused: true,
-            defaults: { duration: HERO_SCENE_DURATION, ease: EASE_IN_OUT },
+        const scene = buildHeroScene(
+          { section, center, body, crowd, title, ground },
+          {
+            isReduced: context.conditions?.isReduced ?? false,
             onComplete: () => setScene("2"),
             onReverseComplete: () => setScene("1"),
-          })
-          // rows, not the whole crowd: otherwise the nurse jumps in front.
-          // every row shrinks into the bottom-right corner.
-          .to(crowd.children, {
-            scale: 0,
-            autoAlpha: 0,
-            transformOrigin: (_index: number, row: HTMLElement) =>
-              `100% ${crowd.offsetHeight - row.offsetTop}px`,
-          })
-          // turn the image, not its wrapper, so she keeps hopping.
-          .to(
-            body,
-            {
-              rotation: HERO_LIE_ROTATION,
-              // to the middle of the screen, a little lower.
-              y: () =>
-                section.offsetHeight / 2 -
-                (center.offsetTop + center.offsetHeight / 2) +
-                section.offsetHeight * HERO_LIE_DROP,
-              // lying down, she fills HERO_LIE_FIT of the screen width.
-              scale: () =>
-                Math.min(
-                  1,
-                  (section.offsetWidth * HERO_LIE_FIT) / center.offsetHeight,
-                ),
-            },
-            0,
-          )
-          // title moves from the corner to the middle, just above her.
-          .to(
-            title,
-            {
-              x: () =>
-                section.offsetWidth / 2 -
-                (title.offsetLeft + title.offsetWidth / 2),
-              y: () =>
-                section.offsetHeight / 2 -
-                (title.offsetTop + title.offsetHeight / 2) -
-                title.offsetHeight * titleScale() * HERO_TITLE_LIFT,
-              scale: titleScale,
-              "--pill-opacity": 0,
-            },
-            0,
-          )
-          .to(ground, { autoAlpha: 1 }, 0);
+          },
+        );
 
         let isPlayed = false;
 
@@ -153,6 +103,7 @@ export function HeroScroll({
             if (isForward) scene.play();
             else scene.reverse();
             // lock: no scrolling while it auto-scrolls.
+            // (no Lenis in reduced motion: the page just scrolls normally.)
             lenisRef.current?.scrollTo(isForward ? self.end : self.start, {
               duration: HERO_SCENE_DURATION,
               lock: true,

@@ -4,10 +4,6 @@
 // 200svh = the hero's own 100svh + 100svh of scroll that plays the scene.
 .track {
   height: 200svh;
-
-  @media (prefers-reduced-motion: reduce) {
-    height: auto;
-  }
 }
 
 .hero {
@@ -22,6 +18,18 @@
   // sizing for the avatars for both the crowd and the center peep
   --cell: min(70svh, 140vw);
   --cell-w: calc(var(--cell) * 240 / 324);
+
+  // portrait: 70svh made the crowd huge (2.5 people across a tablet).
+  // orientation, not a width breakpoint: it's about the screen's shape.
+  // how far the nurse stands above her default spot.
+  --nurse-lift: 0px;
+
+  @media (orientation: portrait) {
+    --cell: min(45svh, 90vw);
+    // tall screens fit more rows, so one row behind the front was too low.
+    // one row step = 45% of a cell (rows overlap by 55%).
+    --nurse-lift: calc(var(--cell) * 0.45);
+  }
 
   // to move to down (because of jumping animation, it looks to close to the top)
   --drop: calc(var(--cell) * 0.1);
@@ -142,6 +150,15 @@
     position: relative;
     z-index: var(--z-crowd-front);
   }
+
+  // portrait: she stands one row higher, so the row behind the front one
+  // must be in front of her too.
+  @media (orientation: portrait) {
+    &:nth-last-child(2) {
+      position: relative;
+      z-index: var(--z-crowd-front);
+    }
+  }
 }
 
 .character {
@@ -199,7 +216,7 @@
   position: absolute;
   left: 50%;
   // we need to match the head to align with the crowd
-  bottom: calc(var(--cell) * -1.27 - var(--drop));
+  bottom: calc(var(--cell) * -1.27 - var(--drop) + var(--nurse-lift));
   z-index: var(--z-hero-center);
   translate: -50% 0;
   @include jump;
