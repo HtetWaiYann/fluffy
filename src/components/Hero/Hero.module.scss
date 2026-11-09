@@ -1,7 +1,20 @@
 @use "../../styles/jump" as *;
 
+// the hero sticks to the screen while this taller box scrolls past.
+// 200svh = the hero's own 100svh + 100svh of scroll that plays the scene.
+.track {
+  height: 200svh;
+
+  @media (prefers-reduced-motion: reduce) {
+    height: auto;
+  }
+}
+
 .hero {
-  position: relative;
+  // sticky (not a GSAP pin): the browser keeps its size right on every frame
+  // of a resize or zoom. a pin writes fixed px sizes that go stale (white gaps).
+  position: sticky;
+  top: 0;
   // svh: the small viewport height, so the hero doesn't jump when mobile browser bars hide.
   height: 100svh;
   overflow: hidden;
@@ -198,4 +211,7 @@
   display: block;
   width: auto;
   height: calc(var(--cell) * 2.4);
+  // the global img reset caps width at 100% of .center, which is only half
+  // the screen (left: 50%). on phones that squeezed her: tiny and too low.
+  max-width: none;
 }

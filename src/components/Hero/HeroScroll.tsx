@@ -6,7 +6,6 @@ import {
   EASE_IN_OUT,
   HERO_LIE_FIT,
   HERO_LIE_ROTATION,
-  HERO_PIN_LENGTH,
   HERO_SCENE_DURATION,
   HERO_TITLE_FIT,
   HERO_TITLE_LIFT,
@@ -15,22 +14,37 @@ import {
 import { useLenis } from "@/components/providers/SmoothScroll";
 import { useHeroEntrance } from "./useHeroEntrance";
 
-type HeroScrollProps = { className: string; children: ReactNode };
+type HeroScrollProps = {
+  className: string;
+  trackClassName: string;
+  children: ReactNode;
+};
 
 /**
  * Hero section + its scroll animation. Only this part runs in the browser.
  * @param className hero styles
+ * @param trackClassName the tall box the hero sticks inside while scrolling
  * @param children hero markup (finds parts by their data-hero-* attributes)
  */
-export function HeroScroll({ className, children }: HeroScrollProps) {
+export function HeroScroll({
+  className,
+  trackClassName,
+  children,
+}: HeroScrollProps) {
+  const trackRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const lenisRef = useLenis();
   useHeroEntrance(sectionRef);
 
   useGSAP(
     () => {
+      // reload always starts at scene 1 (the browser would restore the scroll).
+      // Reference: https://gsap.com/docs/v3/Plugins/ScrollTrigger/static.clearScrollMemory()
+      ScrollTrigger.clearScrollMemory("manual");
+      window.scrollTo(0, 0);
+
       const mm = gsap.matchMedia();
-      // reduced motion: skip all of this, hero stays still.
+      // reduced motion: no scene, hero stays still.
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const section = sectionRef.current;
         const center =
@@ -42,17 +56,14 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
           section?.querySelector<HTMLElement>("[data-hero-ground]");
         if (!section || !center || !body || !crowd || !title || !ground) return;
 
-        // how much to grow the title so it fills HERO_TITLE_FIT of the screen width.
+        // grow the title to HERO_TITLE_FIT of the screen width.
         const titleScale = () =>
           (section.offsetWidth * HERO_TITLE_FIT) / title.offsetWidth;
 
-        // scene 1 -> 2: crowd shrinks away, nurse lies down, title grows,
-        // ground fades in. all at once. plays by time (not by scroll), so it
-        // never stops halfway.
-        // data-scene tells the CSS which scene shows, so it can pause the
-        // hops/flow of whatever is hidden: "1", "2", or "change" (moving).
+        // CSS uses this to pause whatever is hidden: "1", "2" or "change".
         const setScene = (value: string) => (section.dataset.scene = value);
 
+        // scene 1 -> 2, all at once. plays by time, so it never stops halfway.
         const scene = gsap
           .timeline({
             paused: true,
@@ -60,8 +71,7 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
             onComplete: () => setScene("2"),
             onReverseComplete: () => setScene("1"),
           })
-          // animate each row, not the whole crowd. animating the whole crowd
-          // breaks z-index, and the nurse jumps in front of the front row.
+          // rows, not the whole crowd: otherwise the nurse jumps in front.
           // every row shrinks into the bottom-right corner.
           .to(crowd.children, {
             scale: 0,
@@ -69,18 +79,17 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
             transformOrigin: (_index: number, row: HTMLElement) =>
               `100% ${crowd.offsetHeight - row.offsetTop}px`,
           })
-          // turn the image, not its hopping wrapper, so she still hops up and down.
+          // turn the image, not its wrapper, so she keeps hopping.
           .to(
             body,
             {
               rotation: HERO_LIE_ROTATION,
-              // offsetTop/offsetHeight = her original spot (not moved by animations).
-              // move her to the middle of the screen, then HERO_LIE_DROP lower.
+              // to the middle of the screen, a little lower.
               y: () =>
                 section.offsetHeight / 2 -
                 (center.offsetTop + center.offsetHeight / 2) +
                 section.offsetHeight * HERO_LIE_DROP,
-              // shrink her so she lies within HERO_LIE_FIT of the screen width.
+              // lying down, she fills HERO_LIE_FIT of the screen width.
               scale: () =>
                 Math.min(
                   1,
@@ -90,7 +99,6 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
             0,
           )
           // title moves from the corner to the middle, just above her.
-          // z-index keeps it behind her.
           .to(
             title,
             {
@@ -110,19 +118,30 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
 
         let isPlayed = false;
 
-        // first scroll down: play the scene and auto-scroll to the end.
-        // first scroll up: play it backwards and auto-scroll to the top.
-        // lock: the user can't scroll while it auto-scrolls.
+        // resizing moves the scroll by itself. ignore it until GSAP re-measures.
+        // width only: phone address bars change the height, and GSAP doesn't
+        // re-measure for those, so the flag would never clear.
+        let isResizing = false;
+        let lastWidth = window.innerWidth;
+        const onResize = () => {
+          if (window.innerWidth === lastWidth) return;
+          lastWidth = window.innerWidth;
+          isResizing = true;
+        };
+        const onRefreshDone = () => (isResizing = false);
+        window.addEventListener("resize", onResize);
+        ScrollTrigger.addEventListener("refresh", onRefreshDone);
+
+        // scroll down: play the scene and auto-scroll to the end.
+        // scroll up: play it backwards and auto-scroll to the top.
         ScrollTrigger.create({
-          trigger: section,
+          trigger: trackRef.current,
           start: "top top",
-          end: `+=${HERO_PIN_LENGTH}%`,
-          pin: true,
+          end: "bottom bottom",
           onUpdate: (self) => {
+            if (isResizing) return;
             const isForward = self.direction === 1;
-            // onUpdate also runs once on page load, with no scroll at all.
-            // so only react when the page really moved (whole pixels, to
-            // ignore tiny rounding errors like 0.000001).
+            // also runs on load with no scroll, so check the page really moved.
             const scrolled = Math.round(self.scroll());
             const hasMoved = isForward
               ? scrolled > Math.round(self.start)
@@ -133,27 +152,41 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
             setScene("change");
             if (isForward) scene.play();
             else scene.reverse();
+            // lock: no scrolling while it auto-scrolls.
             lenisRef.current?.scrollTo(isForward ? self.end : self.start, {
               duration: HERO_SCENE_DURATION,
               lock: true,
             });
           },
-          // on load and resize: recalculate sizes and positions, stay on the
-          // same scene. jumping to the end and back makes GSAP measure now,
-          // not in the first frame of the scroll (that frame would stutter).
-          onRefresh: () => {
-            scene.invalidate();
+          // on load and resize: measure again, stay on the same scene.
+          onRefresh: (self) => {
+            // back to the start first, or GSAP takes scene 2 as the start.
+            scene.progress(0).invalidate();
+            // end and back: measure now, not on the first scroll frame.
             scene.progress(1).progress(isPlayed ? 1 : 0);
+            setScene(isPlayed ? "2" : "1");
+            // the page changed height, so put the scroll back on this scene.
+            lenisRef.current?.scrollTo(isPlayed ? self.end : self.start, {
+              immediate: true,
+              force: true,
+            });
           },
         });
+
+        return () => {
+          window.removeEventListener("resize", onResize);
+          ScrollTrigger.removeEventListener("refresh", onRefreshDone);
+        };
       });
     },
     { scope: sectionRef },
   );
 
   return (
-    <section ref={sectionRef} className={className} data-scene="1">
-      {children}
-    </section>
+    <div ref={trackRef} className={trackClassName}>
+      <section ref={sectionRef} className={className} data-scene="1">
+        {children}
+      </section>
+    </div>
   );
 }

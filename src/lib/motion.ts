@@ -12,8 +12,6 @@ export const LOADER_COUNTER_DURATION = 0.6;
 /** Fast start, gentle stop: the default feel for things settling into place. */
 export const EASE_OUT = "power2.out";
 
-/** How long the hero stays stuck while scrolling, in % of the screen height. */
-export const HERO_PIN_LENGTH = 100;
 
 /** Scene 1 -> 2 length. 1.2s: slow enough to see, quick enough to not feel stuck. */
 export const HERO_SCENE_DURATION = 1.2;
