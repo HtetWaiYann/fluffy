@@ -16,6 +16,15 @@
 
   --radius-pill: 999px;
 
+  // scene 2 ground blobs: soft pastel gradients (from -> to).
+  --color-blob-mint-from: #b8f2d9;
+  --color-blob-mint-to: #a9d8f5;
+  --color-blob-lemon-from: #fff1a8;
+  --color-blob-lemon-to: #ffc9a3;
+  --color-blob-lilac-from: #e3c8f7;
+  --color-blob-lilac-to: #b9c3f7;
+
+  --z-hero-ground: 0;
   --z-hero-title: 1;
   --z-hero-center: 2;
   --z-crowd-front: 3;

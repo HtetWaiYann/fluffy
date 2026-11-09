@@ -36,18 +36,27 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
         const body = center?.querySelector<HTMLElement>("[data-hero-body]");
         const crowd = section?.querySelector<HTMLElement>("[data-hero-crowd]");
         const title = section?.querySelector<HTMLElement>("[data-hero-title]");
-        if (!section || !center || !body || !crowd || !title) return;
+        const ground =
+          section?.querySelector<HTMLElement>("[data-hero-ground]");
+        if (!section || !center || !body || !crowd || !title || !ground) return;
 
         // how much to grow the title so it fills HERO_TITLE_FIT of the screen width.
         const titleScale = () =>
           (section.offsetWidth * HERO_TITLE_FIT) / title.offsetWidth;
 
-        // scene 1 -> 2: crowd shrinks away, nurse lies down, title grows.
-        // all start together. plays by time (not by scroll), so it never stops halfway.
+        // scene 1 -> 2: crowd shrinks away, nurse lies down, title grows,
+        // ground fades in. all at once. plays by time (not by scroll), so it
+        // never stops halfway.
+        // data-scene tells the CSS which scene shows, so it can pause the
+        // hops/flow of whatever is hidden: "1", "2", or "change" (moving).
+        const setScene = (value: string) => (section.dataset.scene = value);
+
         const scene = gsap
           .timeline({
             paused: true,
             defaults: { duration: HERO_SCENE_DURATION, ease: EASE_IN_OUT },
+            onComplete: () => setScene("2"),
+            onReverseComplete: () => setScene("1"),
           })
           // animate each row, not the whole crowd. animating the whole crowd
           // breaks z-index, and the nurse jumps in front of the front row.
@@ -91,9 +100,11 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
                 (title.offsetTop + title.offsetHeight / 2) -
                 title.offsetHeight * titleScale() * HERO_TITLE_LIFT,
               scale: titleScale,
+              "--pill-opacity": 0,
             },
             0,
-          );
+          )
+          .to(ground, { autoAlpha: 1 }, 0);
 
         let isPlayed = false;
 
@@ -117,6 +128,7 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
             if (!hasMoved || isForward === isPlayed) return;
             isPlayed = isForward;
 
+            setScene("change");
             if (isForward) scene.play();
             else scene.reverse();
             lenisRef.current?.scrollTo(isForward ? self.end : self.start, {
@@ -124,10 +136,12 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
               lock: true,
             });
           },
-          // on resize: recalculate sizes and positions, stay on the same scene.
+          // on load and resize: recalculate sizes and positions, stay on the
+          // same scene. jumping to the end and back makes GSAP measure now,
+          // not in the first frame of the scroll (that frame would stutter).
           onRefresh: () => {
             scene.invalidate();
-            scene.progress(isPlayed ? 1 : 0);
+            scene.progress(1).progress(isPlayed ? 1 : 0);
           },
         });
       });
@@ -136,7 +150,7 @@ export function HeroScroll({ className, children }: HeroScrollProps) {
   );
 
   return (
-    <section ref={sectionRef} className={className}>
+    <section ref={sectionRef} className={className} data-scene="1">
       {children}
     </section>
   );

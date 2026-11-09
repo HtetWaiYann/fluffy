@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CROWD_PEEP, HERO_CENTER, PEEP_SIZE } from "@/data/images";
 import { CENTER_TIMING, CROWD, type JumpTiming } from "@/data/heroScene";
+import { Ground } from "./Ground";
 import { HeroScroll } from "./HeroScroll";
 import styles from "./Hero.module.scss";
 
@@ -13,6 +14,7 @@ export function Hero() {
   return (
     <HeroScroll className={styles.hero}>
       <h1 className="visually-hidden">Fluffy Peeps</h1>
+      <Ground />
       <p className={styles.wordmark} aria-hidden="true" data-hero-title>
         Fluffy Peeps
       </p>
