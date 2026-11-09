@@ -1,0 +1,33 @@
+// Only the tokens in use so far; more are added as sections need them.
+:root {
+  // White paper: the black-and-white line art reads best on it.
+  --color-bg: #ffffff;
+  --color-ink: #263238;
+
+  --space-s: 1rem;
+
+  // Fluid sizes: rem + vw so text still scales with browser zoom.
+  --text-label: 0.875rem;
+  --text-display: clamp(3rem, 2rem + 5vw, 6rem);
+
+  --z-loader: 100;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+html {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

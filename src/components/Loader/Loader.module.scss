@@ -1,0 +1,68 @@
+@use "../../styles/jump" as *;
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--space-s);
+  background: var(--color-bg);
+}
+
+// Each peep starts its hop a little after its left neighbour, like a wave.
+$hop-duration: 1.2s;
+$hop-stagger: 0.15s;
+
+.peeps {
+  // One peep's height; widths and overlaps follow from it (artwork is 240 x 324).
+  --peep: clamp(8rem, 6rem + 6vw, 12rem);
+
+  display: flex;
+  justify-content: center;
+}
+
+.peep {
+  width: calc(var(--peep) * 240 / 324);
+  height: var(--peep);
+  @include jump;
+  animation-duration: $hop-duration;
+
+  // we need overlapping neighbours overlap by 45% to have a good look here
+  & + & {
+    margin-left: calc(var(--peep) * 240 / 324 * -0.45);
+  }
+
+  @for $i from 2 through 5 {
+    &:nth-child(#{$i}) {
+      animation-delay: ($i - 1) * $hop-stagger;
+    }
+  }
+
+  // The coloured peep in the middle sits on top of her neighbours.
+  &:nth-child(3) {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.count {
+  font-family: var(--font-display), system-ui, sans-serif;
+  font-size: var(--text-display);
+  font-weight: 600;
+  line-height: 1;
+}
+
+.number {
+  display: inline-block;
+  width: 3ch; // fixed with to keep % still in the frame when digits animate
+  text-align: center;
+}
+
+.label {
+  font-size: var(--text-label);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}

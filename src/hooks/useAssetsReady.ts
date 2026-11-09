@@ -44,7 +44,7 @@ export function useAssetsReady(imageSrcs: readonly string[]) {
       if (!isCancelled) setIsReady(true);
     });
 
-    // Runs on unmount (and twice in dev Strict Mode): stop state updates, clear timers.
+    // Clean up everything on unmount
     return () => {
       isCancelled = true;
       timerIds.forEach((id) => window.clearTimeout(id));
