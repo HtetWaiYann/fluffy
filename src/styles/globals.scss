@@ -24,10 +24,24 @@
   --color-blob-lilac-from: #e3c8f7;
   --color-blob-lilac-to: #b9c3f7;
 
+  // social brand colours, from Simple Icons.
+  --color-discord: #5865f2;
+  --color-opensea: #2081e2;
+  --color-twitter: #1d9bf0;
+
+  // ink at 12%: a soft lift for the round buttons, not a hard edge.
+  --shadow-soft: 0 8px 24px rgb(38 50 56 / 0.12);
+
+  // hover: 0.35s with a quick start and long soft stop, so it reacts at once but settles gently.
+  --duration-hover: 0.35s;
+  --duration-hover-reduced: 0.2s;
+  --ease-soft-out: cubic-bezier(0.2, 0.75, 0.25, 1);
+
   --z-hero-ground: 0;
   --z-hero-title: 1;
   --z-hero-center: 2;
   --z-crowd-front: 3;
+  --z-hero-cta: 4;
   --z-loader: 100;
 }
 

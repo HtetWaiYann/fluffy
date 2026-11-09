@@ -2,6 +2,7 @@ import Image from "next/image";
 import { CROWD_PEEP, HERO_CENTER, PEEP_SIZE } from "@/data/images";
 import { CENTER_TIMING, CROWD, type JumpTiming } from "@/data/heroScene";
 import { Ground } from "./Ground";
+import { HeroCtas } from "./HeroCtas";
 import { HeroScroll } from "./HeroScroll";
 import styles from "./Hero.module.scss";
 
@@ -54,6 +55,8 @@ export function Hero() {
           loading="eager"
         />
       </div>
+
+      <HeroCtas />
     </HeroScroll>
   );
 }

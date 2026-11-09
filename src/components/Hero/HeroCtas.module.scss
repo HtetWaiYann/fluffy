@@ -1,0 +1,89 @@
+.ctas {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: var(--z-hero-cta);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-left: var(--space-gutter);
+}
+
+.socials {
+  display: flex;
+  gap: clamp(0.6rem, 0.4rem + 1vw, 1rem);
+  padding-bottom: var(--space-gutter);
+}
+
+// shared button reset + hover motion for both types of CTA.
+%cta {
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transition:
+    translate var(--duration-hover) var(--ease-soft-out),
+    scale var(--duration-hover) var(--ease-soft-out);
+
+  svg {
+    display: block;
+    width: 100%;
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 5px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition-duration: var(--duration-hover-reduced);
+  }
+}
+
+.social {
+  @extend %cta;
+  width: clamp(2.5rem, 2rem + 1.5vw, 3.25rem);
+  border-radius: 50%;
+  box-shadow: var(--shadow-soft);
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      translate: 0 -12%;
+      scale: 1.06;
+    }
+  }
+}
+
+.glyph {
+  fill: var(--color-bg);
+}
+
+.collection {
+  @extend %cta;
+  position: relative;
+  width: clamp(8.5rem, 6rem + 7vw, 13.5rem);
+  translate: 12% 16%;
+  fill: var(--color-ink);
+  container-type: inline-size;
+
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      translate: 8% 12%;
+      scale: 0.97;
+    }
+  }
+}
+
+.collectionLabel {
+  position: absolute;
+  top: 54%;
+  left: 50%;
+  white-space: nowrap;
+  translate: -50% -50%;
+  color: var(--color-bg);
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 5.5cqi;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
