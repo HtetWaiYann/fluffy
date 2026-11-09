@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { CROWD_PEEP, HERO_CENTER, PEEP_SIZE } from "@/data/images";
 import { CENTER_TIMING, CROWD, type JumpTiming } from "@/data/heroScene";
+import { HeroScroll } from "./HeroScroll";
 import styles from "./Hero.module.scss";
 
 const jumpStyle = ({ delay, duration }: JumpTiming) => ({
@@ -10,14 +11,14 @@ const jumpStyle = ({ delay, duration }: JumpTiming) => ({
 
 export function Hero() {
   return (
-    <section className={styles.hero}>
+    <HeroScroll className={styles.hero}>
       <h1 className="visually-hidden">Fluffy Peeps</h1>
-      <p className={styles.wordmark} aria-hidden="true">
+      <p className={styles.wordmark} aria-hidden="true" data-hero-title>
         Fluffy Peeps
       </p>
 
       {/* Decorative: hidden from screen readers. */}
-      <div className={styles.crowd} aria-hidden="true">
+      <div className={styles.crowd} aria-hidden="true" data-hero-crowd>
         {CROWD.map((row, rowIndex) => (
           <div key={rowIndex} className={styles.row}>
             {row.map((timing, colIndex) => (
@@ -36,15 +37,21 @@ export function Hero() {
         ))}
       </div>
 
-      <Image
+      <div
         className={styles.center}
         style={jumpStyle(CENTER_TIMING)}
-        src={HERO_CENTER.src}
-        alt=""
-        width={HERO_CENTER.width}
-        height={HERO_CENTER.height}
-        loading="eager"
-      />
-    </section>
+        data-hero-center
+      >
+        <Image
+          className={styles.centerImage}
+          data-hero-body
+          src={HERO_CENTER.src}
+          alt=""
+          width={HERO_CENTER.width}
+          height={HERO_CENTER.height}
+          loading="eager"
+        />
+      </div>
+    </HeroScroll>
   );
 }

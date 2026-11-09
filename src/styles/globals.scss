@@ -16,9 +16,9 @@
 
   --radius-pill: 999px;
 
-  --z-hero-center: 1;
-  --z-crowd-front: 2;
-  --z-hero-ui: 3;
+  --z-hero-title: 1;
+  --z-hero-center: 2;
+  --z-crowd-front: 3;
   --z-loader: 100;
 }
 
@@ -39,6 +39,12 @@ html {
   color: var(--color-ink);
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  scrollbar-width: none;
+
+  // for safari
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 // For text only screen readers should get (e.g. the hero's h1).

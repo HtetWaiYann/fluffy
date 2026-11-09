@@ -18,7 +18,8 @@
   position: absolute;
   top: var(--space-gutter);
   left: var(--space-gutter);
-  z-index: var(--z-hero-ui);
+  // above the crowd, but behind the nurse (in scene 2, she lies on it).
+  z-index: var(--z-hero-title);
   font-family: var(--font-display), system-ui, sans-serif;
   font-size: var(--text-title);
   font-weight: 600;
@@ -112,10 +113,14 @@
   // we need to match the head to align with the crowd
   bottom: calc(var(--cell) * -1.27 - var(--drop));
   z-index: var(--z-hero-center);
-  width: auto;
-  height: calc(var(--cell) * 2.4);
   translate: -50% 0;
   @include jump;
   // the image is a standing one so it is taller. so, we need to hop with its own height
   --jump-height: calc(var(--cell) * -0.1);
+}
+
+.centerImage {
+  display: block;
+  width: auto;
+  height: calc(var(--cell) * 2.4);
 }

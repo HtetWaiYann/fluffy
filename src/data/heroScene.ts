@@ -21,10 +21,10 @@ function seededRandom(seed: number) {
 
 const random = seededRandom(7);
 
-// Each jump lasts 1.6–2.4s and starts 0–2.4s in, so no two characters move in step.
+// every jump takes 1.2s, but starts at a random time (0–2.4s), so they don't jump together.
 const randomTiming = (): JumpTiming => ({
   delay: +(random() * 2.4).toFixed(2),
-  duration: +(1.6 + random() * 0.8).toFixed(2),
+  duration: 1.2,
 });
 
 export const CROWD: readonly (readonly JumpTiming[])[] = Array.from(
