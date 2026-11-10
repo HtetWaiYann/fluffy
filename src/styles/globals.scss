@@ -62,6 +62,9 @@ html {
   color: var(--color-ink);
   font-family: var(--font-body), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  // mobile browsers draw a grey box over anything tapped. the buttons have
+  // their own press/hover motion, and keyboard users still get :focus-visible.
+  -webkit-tap-highlight-color: transparent;
   scrollbar-width: none;
 
   // for safari
