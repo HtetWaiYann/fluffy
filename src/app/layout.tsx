@@ -7,8 +7,6 @@ import {
   SITE_URL,
 } from "@/data/site";
 import { LoaderProvider } from "@/components/providers/LoaderProvider";
-import { SmoothScroll } from "@/components/providers/SmoothScroll";
-import "lenis/dist/lenis.css";
 import "@/styles/globals.scss";
 
 // Rounded, friendly faces to match the hand-drawn characters
@@ -58,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html lang="en" className={`${fredoka.variable} ${nunito.variable}`}>
       <body>
         <LoaderProvider>
-          <SmoothScroll>{children}</SmoothScroll>
+          {children}
         </LoaderProvider>
       </body>
     </html>

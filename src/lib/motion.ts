@@ -12,9 +12,14 @@ export const LOADER_COUNTER_DURATION = 0.6;
 /** Fast start, gentle stop: the default feel for things settling into place. */
 export const EASE_OUT = "power2.out";
 
-
 /** Scene 1 -> 2 length. 1.2s: slow enough to see, quick enough to not feel stuck. */
 export const HERO_SCENE_DURATION = 1.2;
+
+/** Scroll needed to flip the scene, in px. 10: ignores tiny trackpad and finger jitter, still one flick. */
+export const HERO_GESTURE_TOLERANCE = 10;
+
+/** Wait after the last resize event before re-measuring. 0.2s: a drag-resize fires dozens of events; measure once. */
+export const HERO_RESIZE_SETTLE = 0.2;
 
 /** Slow start, slow stop: feels like a smooth glide. */
 export const EASE_IN_OUT = "power2.inOut";

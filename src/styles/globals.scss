@@ -65,12 +65,10 @@ html {
   // mobile browsers draw a grey box over anything tapped. the buttons have
   // their own press/hover motion, and keyboard users still get :focus-visible.
   -webkit-tap-highlight-color: transparent;
-  scrollbar-width: none;
-
-  // for safari
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  // the page is one screen tall, but iOS still drags it and springs it back
+  // (rubber-band) on a swipe. Observer can't stop that: iOS decides at
+  // touchstart, before Observer adds its touchmove listener.
+  overscroll-behavior: none;
 }
 
 // For text only screen readers should get (e.g. the hero's h1).

@@ -13,7 +13,7 @@ const jumpStyle = ({ delay, duration }: JumpTiming) => ({
 
 export function Hero() {
   return (
-    <HeroScroll className={styles.hero} trackClassName={styles.track}>
+    <HeroScroll className={styles.hero}>
       <h1 className="visually-hidden">Fluffy Peeps</h1>
       <Ground />
       <p className={styles.wordmark} aria-hidden="true" data-hero-title>

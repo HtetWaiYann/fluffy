@@ -1,41 +1,36 @@
 "use client";
 
-import { useRef, type ReactNode } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
-import { HERO_SCENE_DURATION } from "@/lib/motion";
-import { useLenis } from "@/components/providers/SmoothScroll";
+import { useEffect, useRef, type ReactNode } from "react";
+import { useLoader } from "@/components/providers/LoaderProvider";
+import { gsap, Observer, useGSAP } from "@/lib/gsap";
+import { HERO_GESTURE_TOLERANCE, HERO_RESIZE_SETTLE } from "@/lib/motion";
 import { buildHeroScene } from "./buildHeroScene";
 import { useHeroEntrance } from "./useHeroEntrance";
 
 type HeroScrollProps = {
   className: string;
-  trackClassName: string;
   children: ReactNode;
 };
 
 /**
  * Hero section + its scroll animation. Only this part runs in the browser.
+ * The page doesn't scroll: each scroll gesture flips the scene instead.
  * @param className hero styles
- * @param trackClassName the tall box the hero sticks inside while scrolling
  * @param children hero markup (finds parts by their data-hero-* attributes)
  */
-export function HeroScroll({
-  className,
-  trackClassName,
-  children,
-}: HeroScrollProps) {
-  const trackRef = useRef<HTMLDivElement>(null);
+export function HeroScroll({ className, children }: HeroScrollProps) {
   const sectionRef = useRef<HTMLElement>(null);
-  const lenisRef = useLenis();
+  const { isLoaded } = useLoader();
+  // a ref, so the gesture handlers (made once) see the latest value.
+  const isLoadedRef = useRef(isLoaded);
   useHeroEntrance(sectionRef);
+
+  useEffect(() => {
+    isLoadedRef.current = isLoaded;
+  }, [isLoaded]);
 
   useGSAP(
     () => {
-      // reload always starts at scene 1 (the browser would restore the scroll).
-      // Reference: https://gsap.com/docs/v3/Plugins/ScrollTrigger/static.clearScrollMemory()
-      ScrollTrigger.clearScrollMemory("manual");
-      window.scrollTo(0, 0);
-
       const mm = gsap.matchMedia();
       // both queries listed: GSAP only runs this when one of them matches.
       // rebuilds if the reduced motion setting flips.
@@ -68,76 +63,59 @@ export function HeroScroll({
 
         let isPlayed = false;
 
-        // resizing moves the scroll by itself. ignore it until GSAP re-measures.
-        // width only: phone address bars change the height, and GSAP doesn't
-        // re-measure for those, so the flag would never clear.
-        let isResizing = false;
-        let lastWidth = window.innerWidth;
-        const onResize = () => {
-          if (window.innerWidth === lastWidth) return;
-          lastWidth = window.innerWidth;
-          isResizing = true;
+        // go to scene 2 (play) or scene 1 (reverse). one change at a time:
+        // gestures during a change are ignored, or a long swipe would flip
+        // it back and forth.
+        const show = (isScene2: boolean) => {
+          if (!isLoadedRef.current || scene.isActive()) return;
+          if (isScene2 === isPlayed) return;
+          isPlayed = isScene2;
+          setScene("change");
+          if (isScene2) scene.play();
+          else scene.reverse();
         };
-        const onRefreshDone = () => (isResizing = false);
-        window.addEventListener("resize", onResize);
-        ScrollTrigger.addEventListener("refresh", onRefreshDone);
 
-        // scroll down: play the scene and auto-scroll to the end.
-        // scroll up: play it backwards and auto-scroll to the top.
-        ScrollTrigger.create({
-          trigger: trackRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          onUpdate: (self) => {
-            if (isResizing) return;
-            const isForward = self.direction === 1;
-            // also runs on load with no scroll, so check the page really moved.
-            const scrolled = Math.round(self.scroll());
-            const hasMoved = isForward
-              ? scrolled > Math.round(self.start)
-              : scrolled < Math.round(self.end);
-            if (!hasMoved || isForward === isPlayed) return;
-            isPlayed = isForward;
-
-            setScene("change");
-            if (isForward) scene.play();
-            else scene.reverse();
-            // lock: no scrolling while it auto-scrolls.
-            // (no Lenis in reduced motion: the page just scrolls normally.)
-            lenisRef.current?.scrollTo(isForward ? self.end : self.start, {
-              duration: HERO_SCENE_DURATION,
-              lock: true,
-            });
-          },
-          // on load and resize: measure again, stay on the same scene.
-          onRefresh: (self) => {
-            // back to the start first, or GSAP takes scene 2 as the start.
-            scene.progress(0).invalidate();
-            // end and back: measure now, not on the first scroll frame.
-            scene.progress(1).progress(isPlayed ? 1 : 0);
-            setScene(isPlayed ? "2" : "1");
-            // the page changed height, so put the scroll back on this scene.
-            lenisRef.current?.scrollTo(isPlayed ? self.end : self.start, {
-              immediate: true,
-              force: true,
-            });
-          },
+        // On scroll: down flips to the other scene (a loop: 1 -> 2 -> 1 ...),
+        // up goes back to scene 1. Observer reads wheel and touch swipes
+        // without the page scrolling, so there's no scroll position to fight.
+        // Reference: https://gsap.com/docs/v3/Plugins/Observer/
+        Observer.create({
+          target: window,
+          type: "wheel,touch",
+          // wheel and touch give "scroll down" opposite signs. -1 flips the
+          // wheel, so both call onUp. (same as GSAP's full-screen demo.)
+          wheelSpeed: -1,
+          tolerance: HERO_GESTURE_TOLERANCE,
+          // stops iOS rubber-banding and pull-to-refresh on a swipe.
+          preventDefault: true,
+          onUp: () => show(!isPlayed),
+          onDown: () => show(false),
         });
 
-        return () => {
-          window.removeEventListener("resize", onResize);
-          ScrollTrigger.removeEventListener("refresh", onRefreshDone);
-        };
+        // on resize: measure again once it settles, stay on the same scene.
+        // (debounced: re-measuring reads layout, so not on every resize event.)
+        const relayout = gsap
+          .delayedCall(HERO_RESIZE_SETTLE, () => {
+            // back to the start first, or GSAP takes scene 2 as the start.
+            scene.progress(0).invalidate();
+            // end and back: measure now, not on the next change.
+            // edge case: mid-change, this jumps it to the end.
+            scene.progress(1).progress(isPlayed ? 1 : 0);
+            setScene(isPlayed ? "2" : "1");
+          })
+          .pause();
+        const onResize = () => relayout.restart(true);
+        window.addEventListener("resize", onResize);
+
+        return () => window.removeEventListener("resize", onResize);
       });
     },
     { scope: sectionRef },
   );
 
   return (
-    <div ref={trackRef} className={trackClassName}>
-      <section ref={sectionRef} className={className} data-scene="1">
-        {children}
-      </section>
-    </div>
+    <section ref={sectionRef} className={className} data-scene="1">
+      {children}
+    </section>
   );
 }

@@ -1,16 +1,7 @@
 @use "../../styles/jump" as *;
 
-// the hero sticks to the screen while this taller box scrolls past.
-// 200svh = the hero's own 100svh + 100svh of scroll that plays the scene.
-.track {
-  height: 200svh;
-}
-
 .hero {
-  // sticky (not a GSAP pin): the browser keeps its size right on every frame
-  // of a resize or zoom. a pin writes fixed px sizes that go stale (white gaps).
-  position: sticky;
-  top: 0;
+  position: relative;
   // svh: the small viewport height, so the hero doesn't jump when mobile browser bars hide.
   height: 100svh;
   overflow: hidden;
