@@ -15,7 +15,7 @@ import {
 import styles from "./Loader.module.scss";
 
 export function Loader() {
-  const { markLoaded } = useLoader();
+  const { isLoaded, markLoaded } = useLoader();
   const { progress, isReady } = useAssetsReady(HERO_IMAGE_SRCS);
   const [isGone, setIsGone] = useState(false);
   const loaderRef = useRef<HTMLDivElement>(null);
@@ -49,12 +49,21 @@ export function Loader() {
     { dependencies: [progress] },
   );
 
-  // assets ready: fade out. markLoaded() at the start of the fade, so the hero
-  // entrance begins while the loader still covers it (no flash of the hero).
+  // assets ready: tell the page first, fade out after.
+  useGSAP(
+    () => {
+      if (isReady) markLoaded();
+    },
+    { dependencies: [isReady, markLoaded] },
+  );
+
+  // fade on isLoaded (not on isReady): the hero's entrance hides the crowd in
+  // this same render, so no frame shows it before it rises. (markLoaded in the
+  // fade's onStart left a gap of a render or more on slow phones: a flash.)
   // removed from the page only when the fade ends.
   useGSAP(
     () => {
-      if (!isReady) return;
+      if (!isLoaded) return;
       const isReduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
@@ -64,11 +73,10 @@ export function Loader() {
           ? LOADER_EXIT_DURATION_REDUCED
           : LOADER_EXIT_DURATION,
         ease: EASE_OUT,
-        onStart: markLoaded,
         onComplete: () => setIsGone(true),
       });
     },
-    { dependencies: [isReady, markLoaded] },
+    { dependencies: [isLoaded] },
   );
 
   if (isGone) return null;

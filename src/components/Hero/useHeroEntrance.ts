@@ -11,10 +11,11 @@ import {
   HERO_ROW_STAGGER,
   HERO_UI_AT,
   HERO_UI_DURATION,
+  LOADER_EXIT_DURATION,
 } from "@/lib/motion";
 
 /**
- * On load: once the loader starts fading, the crowd rises in, the nurse pops
+ * On load: once the loader has faded out, the crowd rises in, the nurse pops
  * up, then the wordmark and buttons come in.
  * @param sectionRef the hero section
  */
@@ -38,11 +39,16 @@ export function useHeroEntrance(sectionRef: RefObject<HTMLElement | null>) {
         // sharing a prop would make the scene remember the hidden start
         // value, and scrolling back up would bring back an empty crowd.
         // from(): starts hidden right away, while the loader still covers it.
+        // delay: wait for the loader's fade, so the wave rises on a clear
+        // screen, not half-done behind a see-through loader.
         gsap
-          .timeline()
-          // every row starts one screen lower. front row (last) first.
+          .timeline({ delay: LOADER_EXIT_DURATION })
+          // every row starts just below the screen. front row (last) first.
+          // per row, not one screen for all: on phones the back rows sit
+          // above the screen, and one screen down only moved them into view.
           .from(crowd.children, {
-            y: () => section.offsetHeight,
+            y: (_index: number, row: HTMLElement) =>
+              section.offsetHeight - row.offsetTop,
             duration: HERO_ENTRANCE_DURATION,
             ease: EASE_OUT_STRONG,
             stagger: { each: HERO_ROW_STAGGER, from: "end" },
