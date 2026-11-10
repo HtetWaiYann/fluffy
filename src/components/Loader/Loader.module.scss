@@ -54,10 +54,38 @@ $hop-stagger: 0.15s;
   line-height: 1;
 }
 
+// lets CSS animate a whole number (plain custom properties can't animate).
+@property --loader-fake {
+  syntax: "<integer>";
+  inherits: false;
+  initial-value: 0;
+}
+
+// 8s = LOADER_MAX_DURATION in motion.ts: the loader never stays longer.
+$fake-count-duration: 8s;
+
 .number {
   display: inline-block;
   width: 3ch; // fixed with to keep % still in the frame when digits animate
   text-align: center;
+
+  // before JS loads, CSS counts up by itself, so a slow download doesn't
+  // look stuck at 0%. stops at 90: only real progress reaches 100.
+  // :empty: once JS writes the number, this switches off by itself.
+  &:empty {
+    animation: loader-fake-count $fake-count-duration ease-out forwards;
+    counter-reset: loader-fake var(--loader-fake);
+
+    &::before {
+      content: counter(loader-fake);
+    }
+  }
+}
+
+@keyframes loader-fake-count {
+  to {
+    --loader-fake: 90;
+  }
 }
 
 .label {

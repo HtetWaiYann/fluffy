@@ -24,8 +24,16 @@ export function Loader() {
 
   useGSAP(
     () => {
+      // first run: carry on from the number CSS counted to before JS loaded.
+      const number = numberRef.current;
+      if (number && !number.textContent) {
+        const cssValue =
+          getComputedStyle(number).getPropertyValue("--loader-fake");
+        counter.current.value = parseInt(cssValue, 10) || 0;
+      }
       gsap.to(counter.current, {
-        value: progress * 100,
+        // we never count backwards, even if CSS got ahead of the real progress.
+        value: Math.max(counter.current.value, progress * 100),
         duration: LOADER_COUNTER_DURATION,
         ease: EASE_OUT,
         overwrite: true,
@@ -88,10 +96,8 @@ export function Loader() {
         ))}
       </div>
       <p className={styles.count} aria-hidden="true">
-        <span className={styles.number} ref={numberRef}>
-          0
-        </span>
-        %
+        {/* empty on purpose: CSS shows its own count until JS writes here */}
+        <span className={styles.number} ref={numberRef} />%
       </p>
       <p className={styles.label}>Loading</p>
     </div>

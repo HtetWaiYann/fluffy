@@ -4,9 +4,18 @@ import { SmoothScroll } from "@/components/providers/SmoothScroll";
 import "lenis/dist/lenis.css";
 import "@/styles/globals.scss";
 
-// Rounded, friendly faces to match the hand-drawn characters. Both are variable fonts, so no weights needed.
-const fredoka = Fredoka({ subsets: ["latin"], variable: "--font-display" });
-const nunito = Nunito({ subsets: ["latin"], variable: "--font-body" });
+// Rounded, friendly faces to match the hand-drawn characters
+const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: "600",
+  variable: "--font-display",
+});
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: "700",
+  variable: "--font-body",
+});
 
 /** Root HTML shell. Server component; only the providers run in the browser. */
 export default function RootLayout({ children }: LayoutProps<"/">) {
