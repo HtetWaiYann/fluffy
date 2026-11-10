@@ -55,9 +55,13 @@ instructions say, they react to hover but don't go anywhere.
 
 ## Performance
 
-Measured on a production build in headless Chrome, CPU slowed down 4x:
+Recorded on the live site in Chrome DevTools, CPU slowed down 4x (load, then scene 1 → 2):
 
-- 60fps while idle and during the scene change, on desktop and phone sizes. No long tasks.
+![Chrome DevTools performance recording at 4x CPU slowdown](assets/readme/performance-4x-cpu.png)
+
+- The Frames track stays green: about 16.7ms per frame (60fps) through the scene change. CLS is 0.
+- One 67ms task while the loader is still covering the page. It's React hydrating the 160 crowd
+  images. Nobody can click yet, so I left it.
 - I only animate `transform` and `opacity`, because they don't trigger layout. Hidden parts
   pause their CSS animations.
 - 311KB first load. All 160 crowd peeps share one 15KB SVG, and I only load the two font weights
