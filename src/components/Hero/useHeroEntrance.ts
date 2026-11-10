@@ -58,7 +58,9 @@ export function useHeroEntrance(sectionRef: RefObject<HTMLElement | null>) {
             title,
             {
               autoAlpha: 0,
-              yPercent: -50,
+              // % of its unscaled box, and CSS draws it big then shrinks it.
+              // times its scale = half its on-screen height, as before.
+              yPercent: () => -50 * Number(gsap.getProperty(title, "scaleY")),
               duration: HERO_UI_DURATION,
               ease: EASE_OUT,
             },

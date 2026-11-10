@@ -39,7 +39,6 @@ export function buildHeroScene(
   { section, center, body, crowd, title, ground }: HeroParts,
   { isReduced, onComplete, onReverseComplete }: SceneOptions,
 ) {
-  // grow the title to HERO_TITLE_FIT of the screen width.
   const titleScale = () =>
     (section.offsetWidth * HERO_TITLE_FIT) / title.offsetWidth;
 
@@ -59,12 +58,15 @@ export function buildHeroScene(
   };
 
   // scene 2 title: from the corner to the middle, just above her.
+  // it scales from its top left corner (CSS), so its centre is half its
+  // scaled size in from there.
   const titleCentered = {
     x: () =>
-      section.offsetWidth / 2 - (title.offsetLeft + title.offsetWidth / 2),
+      section.offsetWidth / 2 -
+      (title.offsetLeft + (title.offsetWidth * titleScale()) / 2),
     y: () =>
       section.offsetHeight / 2 -
-      (title.offsetTop + title.offsetHeight / 2) -
+      (title.offsetTop + (title.offsetHeight * titleScale()) / 2) -
       title.offsetHeight * titleScale() * HERO_TITLE_LIFT,
     scale: titleScale,
     "--pill-opacity": 0,

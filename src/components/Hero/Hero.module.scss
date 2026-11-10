@@ -100,10 +100,20 @@
   // above the crowd, but behind the nurse (in scene 2, she lies on it).
   z-index: var(--z-hero-title);
   font-family: var(--font-display), system-ui, sans-serif;
-  font-size: var(--text-title);
   font-weight: 600;
   line-height: 1;
-  padding: var(--space-xs) var(--space-s);
+
+  // drawn big and shrunk for scene 1, so the scene only ever scales it down.
+  // scaling text up redraws it every frame and its letters shimmer
+  --wordmark-shrink: 0.25;
+  font-size: calc(var(--text-title) / var(--wordmark-shrink));
+  // the big box is wider than a phone screen, and would wrap to 2 lines.
+  white-space: nowrap;
+  padding: calc(var(--space-xs) / var(--wordmark-shrink))
+    calc(var(--space-s) / var(--wordmark-shrink));
+  transform-origin: 0 0;
+  transform: scale(var(--wordmark-shrink));
+  will-change: transform;
   // white pill behind the text, so it's readable over the crowd.
   // scene 2 fades it out, or a big white box would cover the ground.
   // set here, so GSAP knows where to go back to on scroll up.
